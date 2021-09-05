@@ -1,0 +1,26 @@
+﻿@model ICollection<Log4Job.Models.ApplicationUser>
+@{
+    ViewBag.Title = "List";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>List</h2>
+
+<table class="table table-bordered table-hover" style="font-size:large">
+    <thead style="border:medium">
+        <tr>
+            <th scope="col"><b>Employee name</b></th>
+            <th scope="col"><b></b></th>
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            foreach (var user in Model)
+            {
+                <tr>
+                    <td>@Html.ActionLink(user.Employee.Name, $"UserDetail/{user.Id}", "Employee")</td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>

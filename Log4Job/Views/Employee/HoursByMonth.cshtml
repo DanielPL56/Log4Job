@@ -1,0 +1,62 @@
+﻿@model Log4Job.ViewModels.UserDetailViewModel
+@{
+    ViewBag.Title = "HoursByMonth";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>@Model.ChoosenMonth</h2>
+
+<div class="table">
+    <table class="table table-bordered table-hover" style="font-size:large">
+        <thead style="border:medium">
+            <tr>
+                <th scope="col">Date</th>
+                <th scope="col">Hours/Minutes</th>
+            </tr>
+        </thead>
+        <tbody>
+            @{
+                foreach (var timeReport in Model.User.Employee.TimeReports.Where(t => t.StartDate.GetValueOrDefault().Month == ((int)Model.ChoosenMonth + 1)))
+                {
+                    var hours = Model.WorkTimeCalculator.SumHoursInDay(timeReport);
+                    <tr>
+                        @if (hours < 1)
+                        {
+                        var minutes = hours * 60;
+
+                            <td>Date: @timeReport.StartDate.GetValueOrDefault().ToShortDateString()</td>
+                            <td>@string.Format("{0:f0}", minutes) minutes</td>
+                        }
+                        else
+                    {
+                            <td>Date: @timeReport.StartDate.GetValueOrDefault().ToShortDateString()</td>
+                            <td>@string.Format("{0:f0}", hours) hours</td>
+                        }
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>
+<br />
+<h4>Total hours worked in this Month @string.Format("{0:f0}", Model.WorkTimeCalculator.SumHoursWorkedInMonth(Model.User.Employee.TimeReports.Where(t => t.StartDate.GetValueOrDefault().Month == ((int)Model.ChoosenMonth + 1)).ToList()))</h4>
+<br />
+<div class="row">
+    @using (Html.BeginForm("HoursByMonth", "Employee"))
+    {
+
+        <div class="col-md-4">
+            @Html.LabelFor(m => m.ChoosenMonth)
+            @Html.DropDownListFor(m => m.ChoosenMonth, new SelectList(Model.Months), "Month", new { @class = "form-control" })
+        </div>
+        
+        <br />
+        <button type="submit" class="btn btn-primary">Apply Filter</button>
+
+        @Html.HiddenFor(m => m.User.Id)
+    }
+</div>
+<br />
+<div>
+    @Html.ActionLink("To Employee", $"UserDetail/{Model.User.Id}", "Employee")
+</div>

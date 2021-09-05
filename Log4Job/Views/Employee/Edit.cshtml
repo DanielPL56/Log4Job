@@ -1,0 +1,21 @@
+﻿@model Log4Job.Models.ApplicationUser
+@{
+    ViewBag.Title = "Edit";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Edit @Model.Employee.Name</h2>
+
+@using (Html.BeginForm("EditEmployee", "Employee"))
+{
+    <div class="form-group">
+        @Html.LabelFor(u => u.Employee.Name)
+        @Html.TextBoxFor(u => u.Employee.Name, new { @class = "form-control" })
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(u => u.Email)
+        @Html.TextBoxFor(u => u.Email, new { @class = "form-control" })
+    </div>
+    <button type="submit" class="btn btn-primary">Save</button>
+    @Html.HiddenFor(u => u.Id)
+}

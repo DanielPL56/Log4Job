@@ -1,0 +1,61 @@
+﻿@model Log4Job.ViewModels.UserDetailViewModel
+@{
+    ViewBag.Title = "HoursByMonthAndWeek";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>HoursByMonthAndWeek</h2>
+
+<div class="table">
+    <table class="table table-bordered table-hover" style="font-size:large">
+        <thead style="border:medium">
+            <tr>
+                <th scope="col">Date</th>
+                <th scope="col">Hours/Minutes</th>
+            </tr>
+        </thead>
+        <tbody>
+            @{
+                foreach (var timeReport in Model.User.Employee.TimeReports.Where(t => t.StartDate.GetValueOrDefault() >= Model.FilterStartDate && t.StartDate.GetValueOrDefault() <= Model.FilterEndDate))
+                {
+                    var hours = Model.WorkTimeCalculator.SumHoursInDay(timeReport);
+                    <tr>
+                        @if (hours < 1)
+                        {
+                        var minutes = hours * 60;
+
+                            <td>Date: @timeReport.StartDate.GetValueOrDefault().ToShortDateString()</td>
+                            <td>@string.Format("{0:f0}", minutes) minutes</td>
+                        }
+                        else
+                        {
+                            <td>Date: @timeReport.StartDate.GetValueOrDefault().ToShortDateString()</td>
+                            <td>@string.Format("{0:f0}", hours) hours</td>
+                        }
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>
+<br />
+<h4>Total hours worked in this week @string.Format("{0:f0}", Model.WorkTimeCalculator.SumHoursWorkedInMonth(Model.User.Employee.TimeReports.Where(t => t.StartDate.GetValueOrDefault() >= Model.FilterStartDate && t.StartDate.GetValueOrDefault() <= Model.FilterEndDate).ToList()))</h4>
+<br />
+<div class="row">
+    @using (Html.BeginForm("HoursByWeek", "Employee"))
+    {
+        <div class="col-md-4">
+            @Html.LabelFor(m => m.ChoosenWeek)
+            @Html.DropDownListFor(m => m.ChoosenWeek, new SelectList(Model.DateCalculator.WeeksInYear()), "Week", new { @class = "form-control" })
+        </div>
+
+        <br />
+        <button type="submit" class="btn btn-primary">Choose</button>
+
+        @Html.HiddenFor(m => m.User.Id)
+    }
+</div>
+<br />
+<div>
+    @Html.ActionLink("To Employee", $"UserDetail/{Model.User.Id}", "Employee")
+</div>

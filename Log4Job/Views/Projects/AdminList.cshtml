@@ -1,0 +1,23 @@
+﻿@model ICollection<Log4Job.Models.Project>
+@{
+    ViewBag.Title = "Employees";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>ADMIN - @Html.ActionLink("Create new Project", "New", "Projects")</h2>
+
+<table class="table table-bordered table-hover" style="font-size:large">
+    <thead style="border:medium">
+        <tr>
+            <th scope="col"><b>Project Name</b></th>
+        </tr>
+    </thead>
+    <tbody>
+            @foreach (var project in Model)
+            {
+                <tr>
+                    <td>@Html.ActionLink(project.Name, $"ProjectDetails/{project.ProjectId}", "Projects")</td>
+                </tr>
+            }
+    </tbody>
+</table>

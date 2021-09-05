@@ -1,0 +1,47 @@
+﻿@model Log4Job.ViewModels.ProjectListViewModel
+@{
+    ViewBag.Title = "Employees";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>LIST FOR EMPLOYEE</h2>
+
+<div class="table-responsive">
+    <table class="table table align-middle table-bordered table-hover" style="font-size:large">
+        <thead style="border:medium">
+            <tr>
+                <th scope="col"><b>Project Name</b></th>
+                <th scope="col">Is in your list?</th>
+                <th scope="col">Employee count</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var project in Model.Projects)
+            {
+                <tr>
+                    @if (Model.CurrentUser.Employee.Projects.Count == 0)
+                    {
+                        <td>@Html.ActionLink(project.Name, $"ProjectDetails/{project.ProjectId}", "Projects")</td>
+                        <td>@Html.ActionLink("Add", $"AddProjectToList/{project.ProjectId}", "Projects")</td>
+                    }
+                    else
+                    {
+                        <td>@Html.ActionLink(project.Name, $"ProjectDetails/{project.ProjectId}", "Projects")</td>
+                        <td>
+                            @if (Model.CurrentUser.Employee.Projects.Contains(project))
+                            {
+                                @Html.ActionLink("Remove project from your list", $"RemoveProjectFromList/{project.ProjectId}", "Projects")
+                            }
+                            else
+                            {
+                                @Html.ActionLink("Add", $"AddProjectToList/{project.ProjectId}", "Projects")
+                            }
+
+                        </td>
+                    }
+                    <td>@project.Employees.Count</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

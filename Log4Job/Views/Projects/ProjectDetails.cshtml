@@ -1,0 +1,61 @@
+﻿@model Log4Job.ViewModels.ProjectDetailsViewModel
+@{
+    ViewBag.Title = $"Project - {Model.Project.Name}";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>@Model.Project.Name - Details </h2>
+
+<p>@Html.LabelFor(m => m.Project.Description) : @Model.Project.Description</p>
+
+@if (Model.CurrentUser.Employee != null)
+{
+    foreach (var userProject in Model.CurrentUser.Employee.Projects)
+    {
+        if (userProject.ProjectId == Model.Project.ProjectId)
+        {
+            <p><b>@Html.ActionLink("Remove project from your list", $"RemoveProjectFromList/{Model.Project.ProjectId}", "Projects")</b></p>
+        }
+    }
+}
+
+@{      
+    if (!Model.CurrentUser.Employee.Projects.Contains(Model.Project))
+    {
+        <p>If you want to log your time on this project, first add this project to your list. @Html.ActionLink("- Add Project", $"AddProjectToList/{Model.Project.ProjectId}", "Projects")</p>
+    }
+    else if (Model.CurrentUser.Employee.TimeReports != null)
+    {
+        int count = 0;
+
+        foreach (var userTimeReport in Model.CurrentUser.Employee.TimeReports)
+        {
+            if (userTimeReport.StartDate != null && userTimeReport.EndDate != null)
+            {
+                count++;
+
+            }
+            else if (userTimeReport.StartDate != null && userTimeReport.EndDate == null)
+            {
+                <p>@Html.ActionLink("End your time on this project", $"EndTimeStamp/{Model.Project.ProjectId}", "Projects") Time started - <b>@userTimeReport.StartDate.GetValueOrDefault().ToShortTimeString()</b></p>
+            }
+
+            if (count == Model.Project.TimeReports.Count)
+            {
+                @Html.ActionLink("Log your time on this project", $"StartTimeStamp/{Model.Project.ProjectId}", "Projects")
+            }
+        }
+    }
+    else
+    {
+        @Html.ActionLink("Log your time on this project", $"StartTimeStamp/{Model.Project.ProjectId}", "Projects")
+    }
+}
+
+@{
+    if (User.IsInRole("Log4JobAdmin"))
+    {
+        <p>@Html.ActionLink("Edit", $"Edit/{Model.Project.ProjectId}", "Projects")</p>
+        <p>@Html.ActionLink("Delete", $"Delete/{Model.Project.ProjectId}", "Projects")</p>
+    }
+}

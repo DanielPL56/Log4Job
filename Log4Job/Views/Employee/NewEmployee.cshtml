@@ -1,0 +1,15 @@
+﻿@model Log4Job.Models.Employee
+@{
+    ViewBag.Title = "New Employee";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>@ViewBag.Title</h2>
+
+@using (Html.BeginForm("Create", "Employee"))
+    {
+        <div class="form-group">
+            @Html.LabelFor(e => e.Name)
+            @Html.TextBoxFor(e => e.Name, new { @class = "form-control" })
+        </div>
+    }

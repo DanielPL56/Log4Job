@@ -1,0 +1,68 @@
+﻿@model Log4Job.ViewModels.UserDetailViewModel
+@{
+    ViewBag.Title = "UserDetail";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>@Model.User.Employee.Name</h2>
+<p>@Model.User.Email</p>
+
+<p>@Html.ActionLink("Edit Employee", $"Edit/{Model.User.Id}", "Employee")</p>
+<p>@Html.ActionLink("Delete Employee", $"Delete/{Model.User.Id}", "Employee")</p>
+
+<div class="table">
+    <table class="table table-bordered table-hover" style="font-size:large">
+        <thead style="border:medium">
+            <tr>
+                <th scope="col">Date</th>
+                <th scope="col"> Hours/Minutes</th>
+            </tr>
+        </thead>
+        <tbody>
+            @{
+                foreach (var timeReport in Model.User.Employee.TimeReports)
+                {
+                    var hours = Model.WorkTimeCalculator.SumHoursInDay(timeReport);
+                    <tr>
+                        @if (hours < 1)
+                        {
+                            var minutes = hours * 60;
+
+                            <td>Date: @timeReport.StartDate.GetValueOrDefault().ToShortDateString()</td>
+                            <td>@string.Format("{0:f0}", minutes) minutes</td>
+                        }
+                        else
+                        {
+                            <td>Date: @timeReport.StartDate.GetValueOrDefault().ToShortDateString()</td>
+                            <td>@string.Format("{0:f0}", hours) hours</td>
+                        }
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>
+
+@using (Html.BeginForm("HoursByMonth", "Employee"))
+{
+    <div class="form-group">
+        @Html.LabelFor(m => m.ChoosenMonth)
+        @Html.DropDownListFor(m => m.ChoosenMonth, new SelectList(Model.Months), "Select month", new { @class = "form-control" })
+    </div>
+
+    <button type="submit" class="btn btn-primary">Apply filter</button>
+
+    @Html.HiddenFor(m => m.User.Id)
+}
+
+@using (Html.BeginForm("HoursByWeek", "Employee"))
+{
+    <div class="form-group">
+        @Html.LabelFor(m => m.ChoosenWeek)
+        @Html.DropDownListFor(m => m.ChoosenWeek, new SelectList(Model.DateCalculator.WeeksInYear()), "Select week", new { @class = "form-control" })
+    </div>
+
+    <button type="submit" class="btn btn-primary">Apply filter</button>
+
+    @Html.HiddenFor(m => m.User.Id)
+}

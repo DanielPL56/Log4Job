@@ -1,0 +1,56 @@
+﻿@model  Log4Job.ViewModels.AdminProjectDetailsViewModel
+@{
+    ViewBag.Title = "AdminProjectDetails";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>AdminProjectDetails</h2>
+
+<h2>@Model.CurrentProject.Name - Details </h2>
+
+<p>@Html.LabelFor(m => m.CurrentProject.Description) : @Model.CurrentProject.Description</p>
+
+<p>@Html.ActionLink("Edit", $"Edit/{Model.CurrentProject.ProjectId}", "Projects")</p>
+<p>@Html.ActionLink("Delete", $"Delete/{Model.CurrentProject.ProjectId}", "Projects")</p>
+
+<table class="table table-bordered table-hover" style="font-size:large">
+    <thead style="border:medium">
+        <tr>
+            <th scope="col">Employee name</th>
+            <th scope="col">Hours/Minutes in this project</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var employee in Model.Employees)
+        {
+            var hours = Model.WorkTimeCalculator.TotalHoursInProject(employee.TimeReports, Model.CurrentProject);
+        <tr>
+            @if (hours < 1)
+            {
+                var minutes = hours * 60;
+                <td>@employee.Name</td>
+                <td>@string.Format("{0:f0}", minutes) minutes</td>
+            }
+            else
+            {
+                <td>@employee.Name</td>
+                <td>@string.Format("{0:f0}", hours) hours</td>
+            }
+        </tr>
+        }
+    </tbody>
+</table>
+
+Total hours in this project @string.Format("{0:f0}",Model.WorkTimeCalculator.TotalHoursInProject(Model.TimeReportsForThisProject, Model.CurrentProject))
+<br />
+
+<table class="table table-bordered table-hover" style="font-size:large">
+    <thead style="border:medium">
+        <tr>
+            <th scope="col"></th>
+            <th scope="col"></th>
+        </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
