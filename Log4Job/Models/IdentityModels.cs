@@ -29,8 +29,9 @@ namespace Log4Job.Models
         public DbSet<TimeReport> TimeReports { get; set; }
 
         public ApplicationDbContext()
-            : base("DefaultConnection", throwIfV1Schema: false)
+            : base("Log4JobLocalDatabase", throwIfV1Schema: false)
         {
+            Database.SetInitializer(new CreateDatabaseIfNotExists<ApplicationDbContext>());
         }
 
         public static ApplicationDbContext Create()
