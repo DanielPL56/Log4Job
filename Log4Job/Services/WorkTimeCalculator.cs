@@ -1,8 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using Log4Job.Services;
+using System.Collections.Generic;
 
 namespace Log4Job.Models
 {
-    public class WorkTimeCalculator
+    public class WorkTimeCalculator : ITimeCalculator
     {
         public double TotalHoursWorked(TimeReport timeReport)
         {

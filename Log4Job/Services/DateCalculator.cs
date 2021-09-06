@@ -1,9 +1,10 @@
-﻿using System;
+﻿using Log4Job.Services;
+using System;
 using System.Collections.Generic;
 
 namespace Log4Job.Models
 {
-    public class DateCalculator
+    public class DateCalculator : IDateCalculator
     {
         public IEnumerable<string> WeeksInYear()
         {
