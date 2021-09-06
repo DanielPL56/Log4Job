@@ -1,15 +1,10 @@
 ﻿using Log4Job.Models;
 using Log4Job.ViewModels;
-using Microsoft.AspNet.Identity;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
-using System.Web;
 using System.Web.Mvc;
-using System.Web.Routing;
-using System.Web.Security;
-using System.Web.UI;
 
 namespace Log4Job.Controllers
 {

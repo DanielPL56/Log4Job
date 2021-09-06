@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Web.Mvc;
-using static Log4Job.ViewModels.UserDetailViewModel;
 
 namespace Log4Job.Controllers
 {
@@ -35,13 +34,7 @@ namespace Log4Job.Controllers
         {
             using (_context)
             {
-                var userDetailViewModel = new UserDetailViewModel
-                {
-                    User = _context.Users.Include(u => u.Employee.TimeReports).SingleOrDefault(u => u.Id == id),
-                    Months = GetMonths(),
-                    WorkTimeCalculator = new WorkTimeCalculator(),
-                    DateCalculator = new DateCalculator()
-                };
+                var userDetailViewModel = GetUserDetailViewModel(id);
 
                 return View(userDetailViewModel);
             }
@@ -51,14 +44,7 @@ namespace Log4Job.Controllers
         {
             using (_context)
             {
-                var userDetailViewModel = new UserDetailViewModel()
-                {
-                    User = _context.Users.Include(u => u.Employee.TimeReports).SingleOrDefault(u => u.Id == entryViewModel.User.Id),
-                    Months = GetMonths(),
-                    ChoosenMonth = entryViewModel.ChoosenMonth,
-                    WorkTimeCalculator = new WorkTimeCalculator(),
-                    DateCalculator = new DateCalculator()
-                };
+                var userDetailViewModel = GetUserDetailViewModel(entryViewModel.User.Id, entryViewModel.ChoosenMonth);
 
                 return View(userDetailViewModel);
             }
@@ -70,14 +56,7 @@ namespace Log4Job.Controllers
             {
                 if (entryViewModel.ChoosenWeek != null && entryViewModel.FilterStartDate != null && entryViewModel.FilterEndDate != null)
                 {
-                    var userDetailViewModel = new UserDetailViewModel()
-                    {
-                        User = _context.Users.Include(u => u.Employee.TimeReports).SingleOrDefault(u => u.Id == entryViewModel.User.Id),
-                        Months = GetMonths(),
-                        ChoosenMonth = entryViewModel.ChoosenMonth,
-                        WorkTimeCalculator = new WorkTimeCalculator(),
-                        DateCalculator = new DateCalculator()
-                    };
+                    var userDetailViewModel = GetUserDetailViewModel(entryViewModel.User.Id, entryViewModel.ChoosenMonth);
 
                     var datesArray = entryViewModel.ChoosenWeek.Split('-');
 
@@ -100,7 +79,7 @@ namespace Log4Job.Controllers
         {
             using (_context)
             {
-                var user = _context.Users.Include(u => u.Employee).SingleOrDefault(u => u.Id == id);
+                var user = GetApplicationUserFromId(id);
 
                 return View(user);
             }
@@ -110,7 +89,7 @@ namespace Log4Job.Controllers
         {
             using (_context)
             {
-                var userInDb = _context.Users.Include(u => u.Employee).SingleOrDefault(u => u.Id == user.Id);
+                var userInDb = GetApplicationUserFromId(user.Id);
 
                 userInDb.Employee.Name = user.Employee.Name;
                 userInDb.Email = user.Email;
@@ -126,7 +105,7 @@ namespace Log4Job.Controllers
         {
             using (_context)
             {
-                var userToDelete = _context.Users.Include(u => u.Employee.TimeReports).SingleOrDefault(u => u.Id == id);
+                var userToDelete = GetApplicationUserFromId(id);
 
                 _context.Employees.Remove(userToDelete.Employee);
                 _context.Users.Remove(userToDelete);
@@ -135,6 +114,32 @@ namespace Log4Job.Controllers
             }
 
             return RedirectToAction("List", "Employee");
+        }
+
+        private ApplicationUser GetApplicationUserFromId(string id)
+        {
+            return _context.Users.Include(u => u.Employee.TimeReports).SingleOrDefault(u => u.Id == id);
+        }
+
+        private UserDetailViewModel GetUserDetailViewModel(string userId)
+        {
+            var viewModel = new UserDetailViewModel()
+            {
+                User = GetApplicationUserFromId(userId),
+                Months = GetMonths(),
+                WorkTimeCalculator = new WorkTimeCalculator(),
+                DateCalculator = new DateCalculator()
+            };
+
+            return viewModel;
+        }
+
+        private UserDetailViewModel GetUserDetailViewModel(string userId, Month choosenMonth)
+        {
+            var viewModel = GetUserDetailViewModel(userId);
+            viewModel.ChoosenMonth = choosenMonth;
+
+            return viewModel;
         }
 
         private IEnumerable<Month> GetMonths()
