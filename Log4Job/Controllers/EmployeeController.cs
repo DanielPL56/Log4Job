@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Web.Mvc;
 
 namespace Log4Job.Controllers
@@ -85,7 +86,7 @@ namespace Log4Job.Controllers
             }
         }
 
-        public ActionResult EditEmployee(ApplicationUser user)
+        public async Task<ActionResult> EditEmployee(ApplicationUser user)
         {
             using (_context)
             {
@@ -95,13 +96,13 @@ namespace Log4Job.Controllers
                 userInDb.Email = user.Email;
                 userInDb.UserName = user.Email;
 
-                _context.SaveChanges();
+               await _context.SaveChangesAsync();
             }
 
             return RedirectToAction("List", "Employee");
         }
 
-        public ActionResult Delete(string id)
+        public async Task<ActionResult> Delete(string id)
         {
             using (_context)
             {
@@ -110,7 +111,7 @@ namespace Log4Job.Controllers
                 _context.Employees.Remove(userToDelete.Employee);
                 _context.Users.Remove(userToDelete);
 
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
             }
 
             return RedirectToAction("List", "Employee");

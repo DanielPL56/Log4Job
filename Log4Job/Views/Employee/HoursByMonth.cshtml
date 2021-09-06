@@ -18,7 +18,7 @@
             @{
                 foreach (var timeReport in Model.User.Employee.TimeReports.Where(t => t.StartDate.GetValueOrDefault().Month == ((int)Model.ChoosenMonth + 1)))
                 {
-                    var hours = Model.WorkTimeCalculator.SumHoursInDay(timeReport);
+                    var hours = Model.WorkTimeCalculator.TotalHoursWorked(timeReport);
                     <tr>
                         @if (hours < 1)
                         {
@@ -39,7 +39,7 @@
     </table>
 </div>
 <br />
-<h4>Total hours worked in this Month @string.Format("{0:f0}", Model.WorkTimeCalculator.SumHoursWorkedInMonth(Model.User.Employee.TimeReports.Where(t => t.StartDate.GetValueOrDefault().Month == ((int)Model.ChoosenMonth + 1)).ToList()))</h4>
+<h4>Total hours worked in this Month @string.Format("{0:f0}", Model.WorkTimeCalculator.TotalHoursWorked(Model.User.Employee.TimeReports.Where(t => t.StartDate.GetValueOrDefault().Month == ((int)Model.ChoosenMonth + 1)).ToList()))</h4>
 <br />
 <div class="row">
     @using (Html.BeginForm("HoursByMonth", "Employee"))

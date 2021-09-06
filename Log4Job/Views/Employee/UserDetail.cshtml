@@ -20,9 +20,9 @@
         </thead>
         <tbody>
             @{
-                foreach (var timeReport in Model.User.Employee.TimeReports)
+                foreach (var timeReport in Model.User.Employee.TimeReports.Where(t => t.StartDate != null && t.EndDate != null))
                 {
-                    var hours = Model.WorkTimeCalculator.SumHoursInDay(timeReport);
+                    var hours = Model.WorkTimeCalculator.TotalHoursWorked(timeReport);
                     <tr>
                         @if (hours < 1)
                         {

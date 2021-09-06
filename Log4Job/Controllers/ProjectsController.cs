@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Web.Mvc;
 
 namespace Log4Job.Controllers
@@ -24,14 +25,14 @@ namespace Log4Job.Controllers
         }
 
         [Authorize(Roles = RoleName.Admin)]
-        public ActionResult Create(Project project)
+        public async Task<ActionResult> Create(Project project)
         {
             if (project.ProjectId == 0)
             {
                 using (_context)
                 {
                     _context.Projects.Add(project);
-                    _context.SaveChanges();
+                    await _context.SaveChangesAsync();
                 }
 
                 return RedirectToAction("List", "Projects");
@@ -41,29 +42,29 @@ namespace Log4Job.Controllers
         }
 
         [Authorize(Roles = RoleName.Admin)]
-        public ActionResult Update(Project project)
+        public async Task<ActionResult> Update(Project project)
         {
             using (_context)
             {
-                var projectInDb = GetProjectFromId(project.ProjectId);
+                var projectInDb = GetProject(project.ProjectId);
 
                 projectInDb.Name = project.Name;
                 projectInDb.Description = project.Description;
 
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
             }
 
             return RedirectToAction("List", "Projects");
         }
 
         [Authorize(Roles = RoleName.Admin)]
-        public ActionResult Delete(int id)
+        public async Task<ActionResult> Delete(int id)
         {
             using (_context)
             {
-                _context.Projects.Remove(GetProjectFromId(id));
+                _context.Projects.Remove(GetProject(id));
 
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
             }
 
             return RedirectToAction("List", "Projects");
@@ -74,7 +75,7 @@ namespace Log4Job.Controllers
         {
             using (_context)
             {
-                var project = GetProjectFromId(id);
+                var project = GetProject(id);
 
                 if (project == null)
                     return HttpNotFound();
@@ -83,20 +84,19 @@ namespace Log4Job.Controllers
             }
         }
 
-        //[Authorize(Roles = RoleName.Admin)]
         public ActionResult List()
         {
             using (_context)
             {
                 if (User.IsInRole(RoleName.Admin))
                 {
-                    return View("AdminList", GetProjects());
+                    return View("AdminList", GetProject());
                 }
 
                 var projectListViewModel = new ProjectListViewModel()
                 {
                     CurrentUser = GetCurrentUser(),
-                    Projects = GetProjects()
+                    Projects = GetProject()
                 };
 
                 return View("List", projectListViewModel);
@@ -130,7 +130,7 @@ namespace Log4Job.Controllers
                     var adminViewModel = new AdminProjectDetailsViewModel()
                     {
                         Employees = filteredEmployees,
-                        CurrentProject = GetProjectFromId(id),
+                        CurrentProject = GetProject(id),
                         TimeReportsForThisProject = filteredTimeReports,
                         WorkTimeCalculator = new WorkTimeCalculator()
                     };
@@ -141,62 +141,61 @@ namespace Log4Job.Controllers
                 var projectListViewModel = new ProjectDetailsViewModel()
                 {
                     CurrentUser = GetCurrentUser(),
-                    Project = GetProjectFromId(id)
+                    Project = GetProject(id)
                 };
                 return View(projectListViewModel);
             }
         }
 
-        //[Route("Join/{userName}")]
-        public ActionResult AddProjectToList(int id)
+        public async Task<ActionResult> AddProjectToList(int id)
         {
             using (_context)
             {
                 var currentUser = GetCurrentUser();
 
-                currentUser.Employee.Projects.Add(GetProjectFromId(id));
+                currentUser.Employee.Projects.Add(GetProject(id));
 
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
             }
 
             return RedirectToAction("List", "Projects");
         }
 
-        public ActionResult RemoveProjectFromList(int id)
+        public async Task<ActionResult> RemoveProjectFromList(int id)
         {
             using (_context)
             {
                 var currentUser = GetCurrentUser();
 
-                currentUser.Employee.Projects.Remove(GetProjectFromId(id));
+                currentUser.Employee.Projects.Remove(GetProject(id));
 
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
             }
 
             return RedirectToAction("List", "Projects");
         }
 
-        public ActionResult StartTimeStamp(int id)
+        public async Task<ActionResult> StartTimeStamp(int id)
         {
             using (_context)
             {
                 var currentUser = GetCurrentUser();
-                var project = GetProjectFromId(id);
+                var project = GetProject(id);
 
                 currentUser.Employee.TimeReports.Add(new TimeReport { StartDate = DateTime.Now, Project = project });
 
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
             }
 
             return RedirectToAction("ProjectDetails", new { id = id });
         }
 
-        public ActionResult EndTimeStamp(int id)
+        public async Task<ActionResult> EndTimeStamp(int id)
         {
             using (_context)
             {
                 var currentUser = GetCurrentUser();
-                var project = GetProjectFromId(id);
+                var project = GetProject(id);
 
                 foreach (var userTimeReport in currentUser.Employee.TimeReports)
                 {
@@ -206,7 +205,7 @@ namespace Log4Job.Controllers
                     }
                 }
 
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
             }
 
             return RedirectToAction("ProjectDetails", new { id = id });
@@ -217,14 +216,14 @@ namespace Log4Job.Controllers
             return _context.Users.Include(u => u.Employee.TimeReports).Include(u => u.Employee.Projects).SingleOrDefault(u => u.UserName == User.Identity.Name);
         }
 
-        private Project GetProjectFromId(int id)
-        {
-            return _context.Projects.Include(p => p.Employees).Include(p => p.TimeReports).SingleOrDefault(p => p.ProjectId == id);
-        }
-
-        private ICollection<Project> GetProjects()
+        private ICollection<Project> GetProject()
         {
             return _context.Projects.Include(p => p.Employees).ToList();
+        }
+
+        private Project GetProject(int id)
+        {
+            return _context.Projects.Include(p => p.Employees).Include(p => p.TimeReports).SingleOrDefault(p => p.ProjectId == id);
         }
 
         private ICollection<Employee> GetEmployees()
