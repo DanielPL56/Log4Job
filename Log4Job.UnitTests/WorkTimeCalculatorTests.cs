@@ -9,7 +9,7 @@ namespace Log4Job.UnitTests
     public class WorkTimeCalculatorTests
     {
         [TestMethod]
-        public void TotalHoursWorked_CalculateTimeSpan_ReturnsHoursInDouble()
+        public void TotalHoursWorked_ShouldCalculateTimeSpan_ReturnsHoursInDouble()
         {
             var workTimeCalculator = new WorkTimeCalculator();
             var timeReport = new TimeReport()
@@ -25,7 +25,7 @@ namespace Log4Job.UnitTests
         }
 
         [TestMethod]
-        public void TotalHoursWorked_CalculateTimeSpanFromICollection_ReturnSumHoursInDoble()
+        public void TotalHoursWorked_ShouldCalculateTimeSpanFromICollection_ReturnSumHoursInDoble()
         {
             var workTimeCalculator = new WorkTimeCalculator();
             var timeReports = new List<TimeReport>()

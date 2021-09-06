@@ -9,7 +9,7 @@ namespace Log4Job.UnitTests
     public class DateCalculatorTests
     {
         [TestMethod]
-        public void WeeksInYear_GenerateWeeksInStrings_ReturnsIEnumerableStrings()
+        public void WeeksInYear_ShouldGenerateWeeksInStrings_ReturnsIEnumerableStrings()
         {
             var dateCalculator = new DateCalculator();
 
