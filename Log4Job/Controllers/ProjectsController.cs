@@ -50,7 +50,7 @@ namespace Log4Job.Controllers
         {
             using (_context)
             {
-                var projectInDb = _context.Projects.SingleOrDefault(p => p.ProjectId == project.ProjectId);
+                var projectInDb = GetProjectFromId(project.ProjectId);
 
                 projectInDb.Name = project.Name;
                 projectInDb.Description = project.Description;
@@ -66,7 +66,7 @@ namespace Log4Job.Controllers
         {
             using (_context)
             {
-                _context.Projects.Remove(_context.Projects.Include(p => p.TimeReports).Include(p => p.Employees).SingleOrDefault(p => p.ProjectId == id));
+                _context.Projects.Remove(GetProjectFromId(id));
 
                 _context.SaveChanges();
             }
@@ -79,7 +79,7 @@ namespace Log4Job.Controllers
         {
             using (_context)
             {
-                var project = _context.Projects.SingleOrDefault(p => p.ProjectId == id);
+                var project = GetProjectFromId(id);
 
                 if (project == null)
                     return HttpNotFound();
@@ -95,13 +95,13 @@ namespace Log4Job.Controllers
             {
                 if (User.IsInRole(RoleName.Admin))
                 {
-                    return View("AdminList", _context.Projects.ToList());
+                    return View("AdminList", GetProjects());
                 }
 
                 var projectListViewModel = new ProjectListViewModel()
                 {
-                    CurrentUser = _context.Users.Include(u => u.Employee.Projects).SingleOrDefault(u => u.UserName == User.Identity.Name),
-                    Projects = _context.Projects.Include(p => p.Employees).ToList()
+                    CurrentUser = GetCurrentUser(),
+                    Projects = GetProjects()
                 };
 
                 return View("List", projectListViewModel);
@@ -114,7 +114,7 @@ namespace Log4Job.Controllers
             {
                 if (User.IsInRole(RoleName.Admin))
                 {
-                    var employees = _context.Employees.Include(e => e.Projects).Include(e => e.TimeReports).ToList();
+                    var employees = GetEmployees();
                     var filteredEmployees = new List<Employee>();
                     var filteredTimeReports = new List<TimeReport>();
 
@@ -135,7 +135,7 @@ namespace Log4Job.Controllers
                     var adminViewModel = new AdminProjectDetailsViewModel()
                     {
                         Employees = filteredEmployees,
-                        CurrentProject = _context.Projects.SingleOrDefault(p => p.ProjectId == id),
+                        CurrentProject = GetProjectFromId(id),
                         TimeReportsForThisProject = filteredTimeReports,
                         WorkTimeCalculator = new WorkTimeCalculator()
                     };
@@ -145,8 +145,8 @@ namespace Log4Job.Controllers
 
                 var projectListViewModel = new ProjectDetailsViewModel()
                 {
-                    CurrentUser = _context.Users.Include(u => u.Employee.Projects).SingleOrDefault(u => u.UserName == User.Identity.Name),
-                    Project = _context.Projects.Include(p => p.TimeReports).SingleOrDefault(p => p.ProjectId == id)
+                    CurrentUser = GetCurrentUser(),
+                    Project = GetProjectFromId(id)
                 };
                 return View(projectListViewModel);
             }
@@ -157,9 +157,9 @@ namespace Log4Job.Controllers
         {
             using (_context)
             {
-                var user = _context.Users.Include(u => u.Employee.Projects).SingleOrDefault(u => u.UserName == User.Identity.Name);
+                var currentUser = GetCurrentUser();
 
-                user.Employee.Projects.Add(_context.Projects.SingleOrDefault(p => p.ProjectId == id));
+                currentUser.Employee.Projects.Add(GetProjectFromId(id));
 
                 _context.SaveChanges();
             }
@@ -171,9 +171,9 @@ namespace Log4Job.Controllers
         {
             using (_context)
             {
-                var user = _context.Users.Include(u => u.Employee.Projects).SingleOrDefault(u => u.UserName == User.Identity.Name);
+                var currentUser = GetCurrentUser();
 
-                user.Employee.Projects.Remove(_context.Projects.SingleOrDefault(p => p.ProjectId == id));
+                currentUser.Employee.Projects.Remove(GetProjectFromId(id));
 
                 _context.SaveChanges();
             }
@@ -185,8 +185,8 @@ namespace Log4Job.Controllers
         {
             using (_context)
             {
-                var currentUser = _context.Users.Include(u => u.Employee.TimeReports).SingleOrDefault(u => u.UserName == User.Identity.Name);
-                var project = _context.Projects.Include(p => p.Employees).Include(p => p.TimeReports).SingleOrDefault(p => p.ProjectId == id);
+                var currentUser = GetCurrentUser();
+                var project = GetProjectFromId(id);
 
                 currentUser.Employee.TimeReports.Add(new TimeReport { StartDate = DateTime.Now, Project = project });
 
@@ -200,8 +200,8 @@ namespace Log4Job.Controllers
         {
             using (_context)
             {
-                var currentUser = _context.Users.Include(u => u.Employee.TimeReports).SingleOrDefault(u => u.UserName == User.Identity.Name);
-                var project = _context.Projects.Include(p => p.Employees).Include(p => p.TimeReports).SingleOrDefault(p => p.ProjectId == id);
+                var currentUser = GetCurrentUser();
+                var project = GetProjectFromId(id);
 
                 foreach (var userTimeReport in currentUser.Employee.TimeReports)
                 {
@@ -215,6 +215,26 @@ namespace Log4Job.Controllers
             }
 
             return RedirectToAction("ProjectDetails", new { id = id });
+        }
+
+        private ApplicationUser GetCurrentUser()
+        {
+            return _context.Users.Include(u => u.Employee.TimeReports).Include(u => u.Employee.Projects).SingleOrDefault(u => u.UserName == User.Identity.Name);
+        }
+
+        private Project GetProjectFromId(int id)
+        {
+            return _context.Projects.Include(p => p.Employees).Include(p => p.TimeReports).SingleOrDefault(p => p.ProjectId == id);
+        }
+
+        private ICollection<Project> GetProjects()
+        {
+            return _context.Projects.Include(p => p.Employees).ToList();
+        }
+
+        private ICollection<Employee> GetEmployees()
+        {
+            return _context.Employees.Include(e => e.Projects).Include(e => e.TimeReports).ToList();
         }
     }
 }
