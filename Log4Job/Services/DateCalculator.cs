@@ -28,7 +28,12 @@ namespace Log4Job.Models
                     DateTime lastMonday = date.AddDays(offset);
                     DateTime nextSunday = lastMonday.AddDays(6);
 
-                    weeksPerYear.Add($"{lastMonday.ToShortDateString()} - {nextSunday.ToShortDateString()}");
+                    var week = $"{lastMonday.ToShortDateString()} - {nextSunday.ToShortDateString()}";
+
+                    if (!weeksPerYear.Contains(week))
+                    {
+                        weeksPerYear.Add(week);
+                    }
 
                     firstDay += 7;
                 }
