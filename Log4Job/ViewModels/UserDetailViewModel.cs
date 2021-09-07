@@ -10,7 +10,7 @@ namespace Log4Job.ViewModels
     {
         public ApplicationUser User { get; set; }
         public ITimeCalculator WorkTimeCalculator { get; set; }
-        public IEnumerable<Month> Months { get; set; }
+        public IEnumerable<string> Months { get; set; }
 
         [Display(Name = "Filter by Month")]
         public Month ChoosenMonth { get; set; }

@@ -127,7 +127,7 @@ namespace Log4Job.Controllers
             var viewModel = new UserDetailViewModel()
             {
                 User = GetApplicationUserFromId(userId),
-                Months = GetMonths(),
+                Months = Enum.GetNames(typeof(Month)).AsEnumerable<string>(),
                 WorkTimeCalculator = new WorkTimeCalculator(),
                 DateCalculator = new DateCalculator()
             };
@@ -141,27 +141,6 @@ namespace Log4Job.Controllers
             viewModel.ChoosenMonth = choosenMonth;
 
             return viewModel;
-        }
-
-        private IEnumerable<Month> GetMonths()
-        {
-            var months = new List<Month>
-            {
-                Month.January,
-                Month.February,
-                Month.March,
-                Month.April,
-                Month.May,
-                Month.June,
-                Month.July,
-                Month.August,
-                Month.September,
-                Month.October,
-                Month.November,
-                Month.December
-            };
-
-            return months;
         }
     }
 }
