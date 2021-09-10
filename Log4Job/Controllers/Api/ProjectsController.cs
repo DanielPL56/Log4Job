@@ -1,4 +1,7 @@
-﻿using Log4Job.Models;
+﻿using AutoMapper;
+using Log4Job.App_Start;
+using Log4Job.DTOs;
+using Log4Job.Models;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
@@ -10,23 +13,28 @@ namespace Log4Job.Controllers.Api
     public class ProjectsController : ApiController
     {
         private ApplicationDbContext _context;
+        private IMapper _mapper;
 
         public ProjectsController()
         {
             _context = new ApplicationDbContext();
+            _mapper = MappingProfile.CreateMapper();
         }
 
         [HttpGet]
-        public IEnumerable<Project> GetProjects()
+        public IEnumerable<ProjectDTO> GetProjects()
         {
             using (_context)
             {
-                return Projects();
+                //var mapper = MappingProfile.CreateMapper();
+
+                //return (IEnumerable<ProjectDTO>)Projects().ToList().Select(p => mapper.Map(p, typeof(Project), typeof(ProjectDTO)));
+                return Projects().ToList().Select(p => _mapper.Map<ProjectDTO>(p));
             }
         }
 
         [HttpGet]
-        public Project GetProject(int id)
+        public ProjectDTO GetProject(int id)
         {
             using (_context)
             {
@@ -35,7 +43,7 @@ namespace Log4Job.Controllers.Api
                 if (project == null)
                     throw new HttpResponseException(HttpStatusCode.NotFound);
 
-                return project;
+                return _mapper.Map<ProjectDTO>(project);
             }
         }
 

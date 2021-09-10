@@ -1,3 +1,4 @@
+using Log4Job.App_Start;
 using System.Web.Http;
 using System.Web.Mvc;
 using System.Web.Optimization;
@@ -9,6 +10,7 @@ namespace Log4Job
     {
         protected void Application_Start()
         {
+            MappingProfile config = new MappingProfile();
             GlobalConfiguration.Configure(WebApiConfig.Register);
             AreaRegistration.RegisterAllAreas();
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
