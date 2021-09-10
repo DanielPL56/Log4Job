@@ -51,11 +51,3 @@
         @Html.ActionLink("Log your time on this project", $"StartTimeStamp/{Model.Project.ProjectId}", "Projects")
     }
 }
-
-@{
-    if (User.IsInRole("Log4JobAdmin"))
-    {
-        <p>@Html.ActionLink("Edit", $"Edit/{Model.Project.ProjectId}", "Projects")</p>
-        <p>@Html.ActionLink("Delete", $"Delete/{Model.Project.ProjectId}", "Projects")</p>
-    }
-}
