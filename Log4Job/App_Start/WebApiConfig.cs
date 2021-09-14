@@ -1,4 +1,5 @@
-﻿using System.Web.Http;
+﻿using Newtonsoft.Json.Serialization;
+using System.Web.Http;
 
 namespace Log4Job
 {
@@ -15,8 +16,11 @@ namespace Log4Job
             );
 
             var json = config.Formatters.JsonFormatter;
+
             json.SerializerSettings.PreserveReferencesHandling = Newtonsoft.Json.PreserveReferencesHandling.Objects;
             config.Formatters.Remove(config.Formatters.XmlFormatter);
+            json.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+            json.SerializerSettings.Formatting = Newtonsoft.Json.Formatting.Indented;
         }
     }
 }
