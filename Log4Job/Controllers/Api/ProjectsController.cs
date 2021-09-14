@@ -26,9 +26,6 @@ namespace Log4Job.Controllers.Api
         {
             using (_context)
             {
-                //var mapper = MappingProfile.CreateMapper();
-
-                //return (IEnumerable<ProjectDTO>)Projects().ToList().Select(p => mapper.Map(p, typeof(Project), typeof(ProjectDTO)));
                 return Projects().ToList().Select(p => _mapper.Map<ProjectDTO>(p));
             }
         }
@@ -48,21 +45,25 @@ namespace Log4Job.Controllers.Api
         }
 
         [HttpPost]
-        public Project CreateProject(Project project)
+        public ProjectDTO CreateProject(ProjectDTO projectDTO)
         {
             CheckModelValid();
 
             using (_context)
             {
+                var project = _mapper.Map<Project>(projectDTO);
+
                 _context.Projects.Add(project);
                 _context.SaveChanges();
 
-                return project;
+                projectDTO.ProjectId = project.ProjectId;
+
+                return projectDTO;
             }
         }
 
         [HttpPut]
-        public void UpdateProject(int id, Project project)
+        public void UpdateProject(int id, ProjectDTO projectDTO)
         {
             CheckModelValid();
 
@@ -72,8 +73,7 @@ namespace Log4Job.Controllers.Api
 
                 CheckProjectExist(projectInDb);
 
-                projectInDb.Name = project.Name;
-                projectInDb.Description = project.Description;
+                _mapper.Map(projectDTO, projectInDb);
 
                 _context.SaveChanges();
             }

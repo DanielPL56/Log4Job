@@ -14,8 +14,9 @@ namespace Log4Job.App_Start
             _config = new MapperConfiguration(cfg => 
             {
                 cfg.AllowNullCollections = true;
-                cfg.CreateMap<Project, ProjectDTO>();
-                //cfg.CreateMap<ProjectDTO, Project>();
+                cfg.CreateMap<Project, ProjectDTO>().ReverseMap().ForMember(p => p.ProjectId, options => options.Ignore());
+                cfg.CreateMap<Employee, EmployeeDTO>().ReverseMap();
+                cfg.CreateMap<TimeReport, TimeReportDTO>().ReverseMap();
             });
 
                 _config.AssertConfigurationIsValid();
